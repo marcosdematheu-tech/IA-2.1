@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#090d12" />
+<meta name="description" content="NEXO Enhance: mejora imágenes con IA y optimiza videos desde el navegador." />
+<title>NEXO Enhance — Clarity Studio</title>
+<style>
+  :root{
+    --bg:#090d12; --panel:#101720; --panel2:#131d27; --line:#23313d;
+    --text:#f3f7fa; --muted:#94a3ad; --soft:#c4d0d7; --accent:#8ce7d2;
+    --accent2:#b8f59a; --danger:#ff9f9f; --radius:22px;
+    --shadow:0 22px 70px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg); color-scheme:dark; scroll-behavior:smooth}
+  body{margin:0; min-height:100vh; color:var(--text); background:radial-gradient(900px 460px at 85% -5%,rgba(78,153,145,.13),transparent 62%),radial-gradient(760px 500px at -10% 25%,rgba(95,135,160,.08),transparent 65%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; letter-spacing:-.015em}
+  button,input{font:inherit} button{cursor:pointer}
+  .shell{width:min(1060px,100% - 32px);margin:0 auto;padding:22px 0 56px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:3px 2px 30px}
+  .brand{display:flex;align-items:center;gap:11px;font-size:15px;font-weight:850;letter-spacing:.13em}
+  .brand-mark{width:34px;height:34px;border:1px solid rgba(140,231,210,.55);border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(140,231,210,.16),rgba(140,231,210,.025));box-shadow:inset 0 0 18px rgba(140,231,210,.08)}
+  .brand-mark svg{width:19px;height:19px}
+  .brand small{display:block;font-size:8px;color:var(--muted);font-weight:650;letter-spacing:.22em;margin-top:2px}
+  .header-status{font-size:10px;color:var(--accent);border:1px solid rgba(140,231,210,.23);background:rgba(140,231,210,.06);padding:8px 11px;border-radius:100px;letter-spacing:.12em;font-weight:750;display:flex;align-items:center;gap:7px}
+  .dot{height:6px;width:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .hero{padding:8px 2px 25px;max-width:760px}
+  .eyebrow{font-size:10px;color:var(--accent);letter-spacing:.2em;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+  .eyebrow:before{content:"";width:20px;height:1px;background:var(--accent)}
+  h1{font-size:clamp(36px,7vw,64px);line-height:.99;letter-spacing:-.065em;margin:15px 0 13px;font-weight:770}
+  h1 span{color:var(--accent)}
+  .hero p{color:var(--muted);line-height:1.65;font-size:14px;max-width:570px;margin:0}
+  .workspace{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr);gap:15px;align-items:start}
+  .main-card,.side-card{background:linear-gradient(160deg,rgba(20,30,40,.97),rgba(13,19,27,.98));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .main-card{padding:17px;min-width:0}
+  .side-card{padding:20px;position:sticky;top:14px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;background:#0a1016;border:1px solid var(--line);padding:4px;border-radius:14px;margin-bottom:17px;gap:4px}
+  .tab{border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:750;padding:11px 10px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .tab.active{background:#1a2932;color:var(--text);box-shadow:inset 0 0 0 1px rgba(140,231,210,.16)}
+  .tab svg{width:16px;height:16px}
+  .dropzone{border:1px dashed #3b5260;border-radius:17px;min-height:260px;padding:26px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(400px 200px at 50% 0%,rgba(140,231,210,.08),transparent 70%),rgba(7,12,17,.45);transition:.2s;position:relative;overflow:hidden}
+  .dropzone.drag{border-color:var(--accent);background:rgba(140,231,210,.08);transform:scale(.995)}
+  .upload-icon{width:54px;height:54px;border:1px solid rgba(140,231,210,.28);border-radius:17px;display:grid;place-items:center;color:var(--accent);background:rgba(140,231,210,.07);margin-bottom:16px}
+  .upload-icon svg{width:23px;height:23px}
+  .dropzone h2{font-size:17px;margin:0 0 7px;letter-spacing:-.03em}
+  .dropzone p{font-size:12px;color:var(--muted);line-height:1.55;margin:0 0 17px;max-width:310px}
+  .file-types{font-size:9px;color:#73818b;letter-spacing:.13em;margin-top:12px;text-transform:uppercase}
+  .primary,.secondary,.quiet{border-radius:12px;padding:12px 16px;border:1px solid transparent;font-size:12px;font-weight:800;transition:.18s}
+  .primary{color:#06120f;background:var(--accent);box-shadow:0 6px 22px rgba(140,231,210,.14)}
+  .primary:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .secondary{color:var(--text);background:#1a2731;border-color:#31434e}
+  .secondary:hover,.quiet:hover{border-color:var(--accent);color:var(--accent)}
+  .quiet{background:transparent;color:var(--muted);border-color:var(--line);padding:10px 12px}
+  .preview-wrap{display:none}
+  .preview-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .file-meta{display:flex;align-items:center;gap:9px;min-width:0}
+  .file-icon{width:32px;height:32px;border-radius:10px;background:#1b2a34;color:var(--accent);display:grid;place-items:center;flex:0 0 auto}
+  .file-icon svg{width:16px;height:16px}
+  .file-name{font-size:11px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+  .file-sub{font-size:9px;color:var(--muted);margin-top:3px}
+  .preview-stage{min-height:210px;max-height:490px;border-radius:15px;background:#070a0e;border:1px solid #202d37;overflow:hidden;display:grid;place-items:center;position:relative}
+  .compare{width:100%;height:100%;min-height:210px;max-height:490px;position:relative;display:grid;place-items:center;overflow:hidden}
+  .compare img{display:block;width:100%;height:100%;max-height:490px;object-fit:contain;position:absolute;inset:0}
+  #afterLayer{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 50% 0 0)}
+  #afterLayer img{width:100%;height:100%;object-fit:contain}
+  .compare-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--accent);box-shadow:0 0 12px rgba(140,231,210,.7);pointer-events:none}
+  .compare-handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34px;height:34px;border:2px solid var(--accent);background:#0b1518;border-radius:50%;display:grid;place-items:center;color:var(--accent);box-shadow:0 4px 20px rgba(0,0,0,.5)}
+  .compare-handle svg{width:17px;height:17px}
+  .compare-tag{position:absolute;top:10px;padding:6px 8px;border-radius:6px;background:rgba(5,10,14,.72);border:1px solid rgba(255,255,255,.09);font-size:8px;letter-spacing:.15em;font-weight:850;color:#dce5e9;pointer-events:none}
+  .compare-tag.left{left:10px}.compare-tag.right{right:10px}
+  .compare-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+  #videoCanvas{width:100%;height:auto;max-height:490px;object-fit:contain;display:block}
+  .video-controls{display:none;align-items:center;gap:9px;margin-top:11px}
+  .video-controls .quiet{padding:8px 10px}
+  .video-time{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .video-seek{flex:1;min-width:0;accent-color:var(--accent)}
+  .preview-note{font-size:10px;line-height:1.5;color:var(--muted);margin:11px 2px 0}
+  .progress-wrap{display:none;margin-top:14px}
+  .progress-head{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:var(--muted);margin-bottom:7px}
+  .progress-track{height:5px;border-radius:9px;background:#26343d;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:9px;transition:width .16s}
+  .side-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .side-head h3{font-size:14px;margin:0;letter-spacing:-.02em}
+  .step{font-size:9px;letter-spacing:.15em;color:var(--accent);font-weight:800}
+  .control-section{padding:15px 0;border-top:1px solid var(--line)}
+  .control-section:first-of-type{border-top:0;padding-top:0}
+  .control-title{font-size:10px;color:#d8e1e6;font-weight:850;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+  .segmented{display:flex;gap:5px;padding:4px;border:1px solid var(--line);background:#0a1016;border-radius:12px}
+  .segmented button{flex:1;padding:9px 7px;font-size:10px;border:0;color:var(--muted);background:transparent;border-radius:8px;font-weight:750}
+  .segmented button.active{background:#22333d;color:var(--accent);box-shadow:inset 0 0 0 1px rgba(140,231,210,.15)}
+  .model-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .model-option{border:1px solid var(--line);background:#0c131a;border-radius:12px;padding:11px;text-align:left;color:var(--text)}
+  .model-option.active{border-color:rgba(140,231,210,.6);background:rgba(140,231,210,.07)}
+  .model-option b{display:block;font-size:11px;margin-bottom:4px}
+  .model-option span{display:block;font-size:9px;line-height:1.45;color:var(--muted)}
+  .range-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:var(--soft);margin:13px 0 6px}
+  .range-row output{color:var(--accent);font-size:10px;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--accent);height:17px;margin:0;cursor:pointer}
+  .hint{font-size:9px;line-height:1.5;color:#7e8d97;margin-top:9px}
+  .action-stack{display:grid;gap:8px;margin-top:16px}
+  .action-stack button{width:100%;min-height:43px}
+  .privacy{margin-top:17px;padding:11px 12px;border:1px solid rgba(140,231,210,.16);background:rgba(140,231,210,.045);border-radius:12px;font-size:9px;color:#a9babf;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+  .privacy svg{width:14px;height:14px;color:var(--accent);flex:0 0 auto;margin-top:1px}
+  .result-info{display:none;margin-top:13px;padding:11px 12px;background:#0b1418;border:1px solid rgba(140,231,210,.18);border-radius:12px;font-size:10px;color:#cbd8dd;line-height:1.5}
+  .result-info strong{color:var(--accent)}
+  .below{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:15px}
+  .mini-card{border:1px solid var(--line);border-radius:15px;padding:14px;background:rgba(16,23,32,.62)}
+  .mini-card b{font-size:11px;display:block;margin:8px 0 4px}
+  .mini-card p{font-size:9px;line-height:1.5;color:var(--muted);margin:0}
+  .mini-icon{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:var(--accent);background:rgba(140,231,210,.08)}
+  .mini-icon svg{width:14px;height:14px}
+  footer{padding:24px 2px 0;color:#687780;font-size:9px;line-height:1.6;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+  footer a{color:#91bcb6;text-decoration:none}
+  .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e2fff6;color:#081410;padding:11px 15px;border-radius:12px;font-size:11px;font-weight:800;box-shadow:0 10px 35px rgba(0,0,0,.35);transition:.22s;z-index:20;max-width:calc(100% - 32px);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .hidden{display:none!important}
+  .warning{font-size:10px;color:#d9c79b;background:rgba(212,174,101,.08);border:1px solid rgba(212,174,101,.18);padding:10px 11px;border-radius:10px;line-height:1.5;margin-top:11px}
+  @media(max-width:780px){.shell{width:min(620px,100% - 24px);padding-top:15px}.workspace{grid-template-columns:1fr}.side-card{position:static}.hero{padding-bottom:20px}.hero p{font-size:13px}.main-card{padding:13px}.side-card{padding:17px}.dropzone{min-height:225px}.below{grid-template-columns:1fr 1fr}.mini-card:last-child{grid-column:span 2}}
+  @media(max-width:390px){.header-status{font-size:8px;padding:7px 8px}.brand{font-size:13px}.below{grid-template-columns:1fr}.mini-card:last-child{grid-column:auto}.file-name{max-width:170px}h1{font-size:38px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z" stroke="currentColor" stroke-width="1.4"/><path d="m8 9 4-2.2L16 9v6l-4 2.2L8 15V9Z" stroke="currentColor" stroke-width="1.4"/><path d="m12 6.8 0 10.4" stroke="currentColor" stroke-width="1.2" opacity=".65"/></svg></div>
+      <div>NEXO<small>CLARITY STUDIO</small></div>
+    </div>
+    <div class="header-status"><span class="dot"></span> IA GRATIS · REAL-ESRGAN</div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">IMAGE & VIDEO LAB / 001</div>
+    <h1>Recuperá cada<br><span>detalle.</span></h1>
+    <p>Subí una imagen o un video. Mejorá la definición, recuperá nitidez y compará el resultado antes de exportarlo.</p>
+  </section>
+
+  <main>
+    <div class="workspace">
+      <section class="main-card">
+        <div class="tabs" role="tablist" aria-label="Tipo de archivo">
+          <button class="tab active" id="tabImage" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="m4 17 5-5 3 3 3-4 5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> IMAGEN</button>
+          <button class="tab" id="tabVideo" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="13" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="m16 10 5-3v10l-5-3v-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> VIDEO</button>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2 id="dropTitle">Soltá tu imagen acá</h2>
+          <p id="dropText">Elegí una foto o captura. Real-ESRGAN reconstruye detalle y la amplía hasta 4×.</p>
+          <button class="primary" id="chooseFile">Seleccionar archivo</button>
+          <div class="file-types" id="fileTypes">JPG · PNG · WEBP · hasta 25 MB recomendado</div>
+        </div>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden />
+
+        <div class="preview-wrap" id="previewWrap">
+          <div class="preview-top">
+            <div class="file-meta">
+              <div class="file-icon" id="fileIcon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="m4 17 5-5 3 3 3-4 5 6" stroke="currentColor" stroke-width="1.6"/></svg></div>
+              <div style="min-width:0"><div class="file-name" id="fileName">archivo.png</div><div class="file-sub" id="fileSub">1920 × 1080 · PNG</div></div>
+            </div>
+            <button class="quiet" id="changeFile">Cambiar archivo</button>
+          </div>
+          <div class="preview-stage" id="imageStage">
+            <div class="compare" id="compareBox">
+              <img id="beforeImage" alt="Imagen original" />
+              <div id="afterLayer"><img id="afterImage" alt="Imagen mejorada" /></div>
+              <div class="compare-line" id="compareLine"></div>
+              <div class="compare-handle" id="compareHandle"><svg viewBox="0 0 24 24" fill="none"><path d="m9 7-5 5 5 5M15 7l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="compare-tag left">ORIGINAL</div><div class="compare-tag right">MEJORADO</div>
+              <input class="compare-range" id="compareRange" type="range" min="0" max="100" value="50" aria-label="Comparar antes y después" />
+            </div>
+          </div>
+          <div class="preview-stage hidden" id="videoStage"><canvas id="videoCanvas"></canvas></div>
+          <div class="video-controls" id="videoControls">
+            <button class="quiet" id="playVideo">▶</button>
+            <input type="range" class="video-seek" id="videoSeek" min="0" max="100" value="0" step="0.1" aria-label="Posición del video" />
+            <span class="video-time" id="videoTime">00:00 / 00:00</span>
+          </div>
+          <p class="preview-note" id="previewNote">Mové la línea del centro para comparar el original con la reconstrucción neuronal.</p>
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-head"><span id="progressLabel">Preparando mejora...</span><strong id="progressPercent">0%</strong></div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <div class="side-head"><h3>Panel de mejora</h3><span class="step">PASO 01 — 03</span></div>
+        <div id="imageControls">
+          <div class="control-section">
+            <div class="control-title">Modelo neuronal</div>
+            <div class="model-option active" style="width:100%;cursor:default"><b>Real-ESRGAN x4plus</b><span>Superresolución neuronal para fotografías, capturas y escenas reales. Descarga inicial aproximada: 34 MB.</span></div>
+          </div>
+          <div class="control-section">
+            <div class="control-title">Resolución de salida</div>
+            <div class="segmented" id="imageScale">
+              <button data-scale="2">2× · Equilibrado</button>
+              <button class="active" data-scale="4">4× · Máximo</button>
+            </div>
+            <div class="hint">La ampliación 4× reconstruye más píxeles, pero exige más memoria y puede tardar en celulares.</div>
+          </div>
+          <div class="control-section">
+            <div class="control-title">Cómo trabaja</div>
+            <div class="hint" style="font-size:11px">La red neuronal analiza la imagen por partes y reconstruye detalles. En equipos sin GPU compatible se usa CPU, con imágenes reducidas para evitar bloqueos. No puede recuperar información que no existe en el original.</div>
+          </div>
+          <div class="action-stack">
+            <button class="primary" id="enhanceImage" disabled>✦ Mejorar con IA</button>
+            <button class="secondary" id="downloadImage" disabled>Descargar imagen mejorada</button>
+            <button class="quiet" id="manualImage" disabled>Mejora rápida sin IA</button>
+          </div>
+          <div class="privacy"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 19 6v5c0 4.7-2.9 8-7 10-4.1-2-7-5.3-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Modelo neuronal gratuito descargado desde internet. El procesamiento se hace en tu dispositivo: tu foto no se sube a un servidor. Puede tardar en celulares.</span></div>
+        </div>
+
+        <div id="videoControlsPanel" class="hidden">
+          <div class="control-section">
+            <div class="control-title">Perfil de imagen</div>
+            <div class="model-options">
+              <button class="model-option active" data-vpreset="natural"><b>Natural</b><span>Colores equilibrados y detalle suave.</span></button>
+              <button class="model-option" data-vpreset="console"><b>Gaming / consola</b><span>Más definición, contraste y color.</span></button>
+            </div>
+          </div>
+          <div class="control-section">
+            <div class="control-title">Resolución de salida</div>
+            <div class="segmented" id="videoScale">
+              <button class="active" data-scale="1">Original</button>
+              <button data-scale="2">Hasta 2×</button>
+            </div>
+            <div class="hint">Para proteger la memoria del celular, NEXO adapta imágenes grandes antes de procesarlas. La red neuronal genera 4× y luego ajusta a la escala elegida.</div>
+          </div>
+          <div class="control-section">
+            <div class="control-title">Ajustes de imagen</div>
+            <div class="range-row"><label for="vidSharp">Nitidez</label><output id="vidSharpVal">35</output></div>
+            <input id="vidSharp" type="range" min="0" max="100" value="35" />
+            <div class="range-row"><label for="vidContrast">Contraste</label><output id="vidContrastVal">108</output></div>
+            <input id="vidContrast" type="range" min="80" max="140" value="108" />
+            <div class="range-row"><label for="vidSaturation">Color</label><output id="vidSaturationVal">108</output></div>
+            <input id="vidSaturation" type="range" min="70" max="140" value="108" />
+          </div>
+          <div class="action-stack">
+            <button class="primary" id="exportVideo" disabled>Mejorar y exportar video</button>
+            <button class="secondary" id="downloadVideo" disabled>Descargar video mejorado</button>
+          </div>
+          <div class="warning">VIDEO: mejora visual por GPU (nitidez, contraste, color y ampliación). Todavía no usa reconstrucción neuronal fotograma por fotograma. La exportación ocurre a velocidad de reproducción.</div>
+          <div class="privacy"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 19 6v5c0 4.7-2.9 8-7 10-4.1-2-7-5.3-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>El video se procesa en el navegador. Si el navegador lo permite, la exportación conserva el audio original.</span></div>
+        </div>
+        <div class="result-info" id="resultInfo"></div>
+      </aside>
+    </div>
+
+    <div class="below">
+      <div class="mini-card"><div class="mini-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 9 12l3 3 5-7 3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4v16h16" stroke="currentColor" stroke-width="1.5"/></svg></div><b>Más detalle</b><p>Ampliá imágenes con Real-ESRGAN 2× o 4×.</p></div>
+      <div class="mini-card"><div class="mini-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div><b>Comparación directa</b><p>Revisá el antes y después antes de guardar.</p></div>
+      <div class="mini-card"><div class="mini-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><b>Exportación simple</b><p>Descargá el resultado directamente en tu celular.</p></div>
+    </div>
+  </main>
+  <footer><span>NEXO ENHANCE · CLARITY STUDIO · VERSIÓN 2.0</span><span>IA de imagen: Real-ESRGAN x4plus ONNX · Modelo gratuito · Licencia BSD-3-Clause.</span></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<video id="sourceVideo" playsinline preload="metadata" style="display:none"></video>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    mode:'image', file:null, originalUrl:null, resultBlob:null, resultUrl:null,
+    model:'general', imageScale:4, videoScale:1, videoPreset:'natural',
+    videoRecorder:null, videoChunks:[], videoUrl:null, videoMime:'video/webm', gl:null, glProgram:null,
+    glTexture:null, animationFrame:0, isExporting:false, sourceStream:null,
+    toastTimer:null, imageSession:null, modelBuffer:null, imageBackend:null, imageResult:null
+  };
+
+  const dropzone=$('dropzone'), fileInput=$('fileInput'), video=$('sourceVideo');
+  const chooseFile=$('chooseFile'), enhanceImage=$('enhanceImage'), downloadImage=$('downloadImage');
+  const manualImage=$('manualImage'), exportVideo=$('exportVideo'), downloadVideo=$('downloadVideo');
+  const videoCanvas=$('videoCanvas');
+  const fmtBytes=(n)=> n<1024*1024 ? (n/1024).toFixed(0)+' KB' : (n/1024/1024).toFixed(1)+' MB';
+  const fmtTime=(s)=>{if(!Number.isFinite(s))return '00:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')};
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(state.toastTimer);state.toastTimer=setTimeout(()=>t.classList.remove('show'),3000)}
+  function setProgress(value,label){$('progressWrap').style.display='block';$('progressFill').style.width=Math.max(0,Math.min(100,value))+'%';$('progressPercent').textContent=Math.round(value)+'%';$('progressLabel').textContent=label||'Procesando...'}
+  function hideProgress(){$('progressWrap').style.display='none';$('progressFill').style.width='0%'}
+  function setMode(mode){
+    state.mode=mode; $('tabImage').classList.toggle('active',mode==='image');$('tabVideo').classList.toggle('active',mode==='video');
+    $('tabImage').setAttribute('aria-selected',String(mode==='image'));$('tabVideo').setAttribute('aria-selected',String(mode==='video'));
+    $('imageControls').classList.toggle('hidden',mode!=='image');$('videoControlsPanel').classList.toggle('hidden',mode!=='video');
+    fileInput.accept=mode==='image'?'image/jpeg,image/png,image/webp,image/avif':'video/mp4,video/webm,video/quicktime,video/x-m4v';
+    $('dropTitle').textContent=mode==='image'?'Soltá tu imagen acá':'Soltá tu video acá';
+    $('dropText').textContent=mode==='image'?'Elegí una foto o captura. Real-ESRGAN reconstruye detalle y la amplía hasta 4×.':'Elegí un video para mejorar nitidez, contraste y color, y exportarlo desde tu celular.';
+    $('fileTypes').textContent=mode==='image'?'JPG · PNG · WEBP · hasta 25 MB recomendado':'MP4 · WEBM · MOV · videos cortos recomendados';
+    if(state.file) clearCurrent();
+  }
+  $('tabImage').addEventListener('click',()=>setMode('image'));
+  $('tabVideo').addEventListener('click',()=>setMode('video'));
+  chooseFile.addEventListener('click',()=>fileInput.click());
+  $('changeFile').addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)loadFile(f);fileInput.value=''});
+  ['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add('drag')}));
+  ['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove('drag')}));
+  dropzone.addEventListener('drop',e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f)loadFile(f)});
+
+  function clearCurrent(){
+    cancelAnimationFrame(state.animationFrame); state.isExporting=false;
+    if(state.originalUrl)URL.revokeObjectURL(state.originalUrl);
+    if(state.resultUrl)URL.revokeObjectURL(state.resultUrl);
+    if(state.videoUrl)URL.revokeObjectURL(state.videoUrl);
+    state.file=null;state.originalUrl=null;state.resultBlob=null;state.resultUrl=null;state.videoUrl=null;state.imageResult=null;
+    try{video.pause();video.removeAttribute('src');video.load()}catch(e){}
+    $('previewWrap').style.display='none';dropzone.style.display='flex';
+    $('imageStage').classList.remove('hidden');$('videoStage').classList.add('hidden');$('videoControls').style.display='none';
+    $('resultInfo').style.display='none';$('downloadImage').disabled=true;$('downloadVideo').disabled=true;$('enhanceImage').disabled=true;$('manualImage').disabled=true;$('exportVideo').disabled=true;
+    hideProgress();
+  }
+  function loadFile(file){
+    if(state.mode==='image'&&!file.type.startsWith('image/')){toast('Elegí un archivo de imagen para esta pestaña.');return}
+    if(state.mode==='video'&&!file.type.startsWith('video/')){toast('Elegí un archivo de video para esta pestaña.');return}
+    if(file.size>250*1024*1024){toast('El archivo supera 250 MB. Probá con uno más liviano.');return}
+    clearCurrent();state.file=file;state.originalUrl=URL.createObjectURL(file);
+    dropzone.style.display='none';$('previewWrap').style.display='block';$('fileName').textContent=file.name;$('fileSub').textContent=fmtBytes(file.size)+' · '+(file.type.split('/')[1]||'archivo').toUpperCase();
+    $('resultInfo').style.display='none';
+    if(state.mode==='image')loadImage(file);else loadVideo(file);
+  }
+  function loadImage(file){
+    const img=new Image();img.onload=()=>{
+      $('beforeImage').src=state.originalUrl;$('afterImage').src=state.originalUrl;
+      $('fileSub').textContent=img.naturalWidth+' × '+img.naturalHeight+' · '+fmtBytes(file.size);
+      $('compareRange').value=50;updateCompare(50);$('imageStage').classList.remove('hidden');$('videoStage').classList.add('hidden');
+      $('previewNote').textContent='Mové la línea del centro para comparar el original con la reconstrucción neuronal.';
+      enhanceImage.disabled=false;manualImage.disabled=false;$('fileIcon').innerHTML='<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="m4 17 5-5 3 3 3-4 5 6" stroke="currentColor" stroke-width="1.6"/></svg>';
+    };img.onerror=()=>toast('No se pudo abrir esta imagen. Probá con JPG o PNG.');img.src=state.originalUrl;
+  }
+  function loadVideo(file){
+    $('imageStage').classList.add('hidden');$('videoStage').classList.remove('hidden');$('videoControls').style.display='flex';
+    $('fileIcon').innerHTML='<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="13" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="m16 10 5-3v10l-5-3v-4Z" stroke="currentColor" stroke-width="1.6"/></svg>';
+    video.src=state.originalUrl;video.muted=false;video.onloadedmetadata=()=>{
+      const w=video.videoWidth,h=video.videoHeight;$('fileSub').textContent=w+' × '+h+' · '+fmtTime(video.duration)+' · '+fmtBytes(file.size);
+      $('videoSeek').value=0;$('videoSeek').max=video.duration||100;$('videoTime').textContent='00:00 / '+fmtTime(video.duration);
+      resizeVideoCanvas();initGL();renderVideoFrame();exportVideo.disabled=false;
+      $('previewNote').textContent='Tocá reproducir para ver la mejora en vivo. Ajustá el perfil a tu gusto antes de exportar.';
+    };
+    video.onerror=()=>toast('Este formato no se pudo abrir en tu navegador. Probá MP4 o WEBM.');
+  }
+  function updateCompare(v){$('afterLayer').style.clipPath=`inset(0 ${100-v}% 0 0)`;$('compareLine').style.left=v+'%';$('compareHandle').style.left=v+'%'}
+  $('compareRange').addEventListener('input',e=>updateCompare(+e.target.value));
+  document.querySelectorAll('#imageScale button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#imageScale button').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.imageScale=+b.dataset.scale}));
+  document.querySelectorAll('[data-vpreset]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-vpreset]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.videoPreset=b.dataset.vpreset;if(state.videoPreset==='console'){$('vidSharp').value=48;$('vidContrast').value=116;$('vidSaturation').value=114}else{$('vidSharp').value=35;$('vidContrast').value=108;$('vidSaturation').value=108}updateRangeOutputs();renderVideoFrame()}));
+  document.querySelectorAll('#videoScale button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#videoScale button').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.videoScale=+b.dataset.scale;if(video.readyState>=2){resizeVideoCanvas();renderVideoFrame()}}));
+  [['vidSharp','vidSharpVal'],['vidContrast','vidContrastVal'],['vidSaturation','vidSaturationVal']].forEach(([id,out])=>$(id).addEventListener('input',()=>{$(out).textContent=$(id).value;renderVideoFrame()}));
+  function updateRangeOutputs(){['vidSharp','vidContrast','vidSaturation'].forEach(id=>$(id+'Val').textContent=$(id).value)}
+
+  const ORT_VERSION='1.30.0';
+  const ORT_CDN=`https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/ort.all.min.js`;
+  const ORT_WASM_PATH=`https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
+  const MODEL_URL='https://huggingface.co/othytenk/realesrgan-x4plus/resolve/main/realesrgan_x4plus_fp16.onnx';
+  const TILE=96, MARGIN=10, MAX_INPUT_PIXELS=800000, MAX_INPUT_SIDE=1400;
+
+  function loadScript(src){
+    return new Promise((resolve,reject)=>{
+      if(window.ort){resolve();return;}
+      const existing=document.querySelector('script[data-nexo-ort]');
+      if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('No se pudo descargar ONNX Runtime.')),{once:true});return;}
+      const script=document.createElement('script');script.src=src;script.async=true;script.dataset.nexoOrt='1';
+      script.onload=()=>window.ort?resolve():reject(new Error('ONNX Runtime se descargó, pero no pudo iniciarse.'));
+      script.onerror=()=>reject(new Error('No se pudo descargar el motor ONNX Runtime. Revisá tu conexión.'));
+      document.head.appendChild(script);
+    });
+  }
+  async function fetchModel(){
+    if(state.modelBuffer)return state.modelBuffer;
+    setProgress(4,'Descargando modelo neuronal (aprox. 34 MB)...');
+    const response=await fetch(MODEL_URL,{mode:'cors',cache:'force-cache'});
+    if(!response.ok)throw new Error('No se pudo descargar el modelo Real-ESRGAN (HTTP '+response.status+').');
+    const total=Number(response.headers.get('content-length'))||34*1024*1024;
+    if(!response.body){state.modelBuffer=await response.arrayBuffer();return state.modelBuffer;}
+    const reader=response.body.getReader();let received=0;const chunks=[];
+    while(true){
+      const {done,value}=await reader.read();if(done)break;
+      chunks.push(value);received+=value.byteLength;
+      setProgress(4+Math.min(24,received/total*24),'Descargando modelo neuronal · '+Math.round(received/1024/1024)+' MB');
+    }
+    const bytes=new Uint8Array(received);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+    state.modelBuffer=bytes.buffer;return state.modelBuffer;
+  }
+  async function getRealESRGAN(){
+    if(state.imageSession)return state.imageSession;
+    setProgress(2,'Cargando motor de IA...');
+    await loadScript(ORT_CDN);
+    const ort=window.ort;
+    ort.env.logLevel='error';
+    ort.env.wasm.wasmPaths=ORT_WASM_PATH;
+    ort.env.wasm.numThreads=1;
+    const model=await fetchModel();
+    let canGPU=false;
+    try{
+      if(navigator.gpu){
+        const adapter=await navigator.gpu.requestAdapter();
+        canGPU=!!(adapter && adapter.features && adapter.features.has('shader-f16'));
+      }
+    }catch(e){canGPU=false;}
+    if(canGPU){
+      try{
+        setProgress(31,'Preparando aceleración gráfica WebGPU...');
+        state.imageSession=await ort.InferenceSession.create(model,{executionProviders:['webgpu'],graphOptimizationLevel:'all'});
+        state.imageBackend='WEBGPU';return state.imageSession;
+      }catch(gpuError){console.warn('WebGPU no disponible para este modelo; se probará WASM.',gpuError);}
+    }
+    setProgress(34,'Preparando motor CPU (WASM)...');
+    state.imageSession=await ort.InferenceSession.create(model,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+    state.imageBackend='CPU / WASM';return state.imageSession;
+  }
+  function makeTileTensor(imageData){
+    const w=imageData.width,h=imageData.height,d=imageData.data;
+    const plane=w*h,planes=new Float32Array(plane*3);
+    for(let i=0;i<plane;i++){
+      const j=i*4;planes[i]=d[j]/255;planes[plane+i]=d[j+1]/255;planes[plane*2+i]=d[j+2]/255;
+    }
+    return new window.ort.Tensor('float32',planes,[1,3,h,w]);
+  }
+  async function runRealESRGAN(sourceCanvas,scale){
+    const session=await getRealESRGAN();
+    const srcCtx=sourceCanvas.getContext('2d',{willReadFrequently:true});
+    const sw=sourceCanvas.width,sh=sourceCanvas.height;
+    const targetWidth=sw*4,targetHeight=sh*4;
+    const full=document.createElement('canvas');full.width=targetWidth;full.height=targetHeight;
+    const outCtx=full.getContext('2d',{willReadFrequently:false});
+    const totalTiles=Math.ceil(sw/TILE)*Math.ceil(sh/TILE);let done=0;
+    for(let y=0;y<sh;y+=TILE){
+      for(let x=0;x<sw;x+=TILE){
+        const coreW=Math.min(TILE,sw-x),coreH=Math.min(TILE,sh-y);
+        const sx=Math.max(0,x-MARGIN),sy=Math.max(0,y-MARGIN);
+        const ex=Math.min(sw,x+coreW+MARGIN),ey=Math.min(sh,y+coreH+MARGIN);
+        const tw=ex-sx,th=ey-sy;
+        const tileData=srcCtx.getImageData(sx,sy,tw,th);
+        const tensor=makeTileTensor(tileData);
+        const result=await session.run({input:tensor});
+        const output=result.output || result[Object.keys(result)[0]];
+        const dims=output.dims;const oh=dims[2],ow=dims[3],plane=oh*ow,values=output.data;
+        const cropX=(x-sx)*4,cropY=(y-sy)*4;
+        const rgba=new Uint8ClampedArray(coreW*4*coreH*4*4);
+        let k=0;
+        for(let yy=0;yy<coreH*4;yy++){
+          const py=cropY+yy;
+          for(let xx=0;xx<coreW*4;xx++){
+            const px=cropX+xx,idx=py*ow+px;
+            rgba[k++]=Math.max(0,Math.min(255,Math.round(values[idx]*255)));
+            rgba[k++]=Math.max(0,Math.min(255,Math.round(values[plane+idx]*255)));
+            rgba[k++]=Math.max(0,Math.min(255,Math.round(values[2*plane+idx]*255)));
+            rgba[k++]=255;
+          }
+        }
+        const part=new ImageData(rgba,coreW*4,coreH*4);
+        outCtx.putImageData(part,x*4,y*4);
+        done++;
+        setProgress(38+done/totalTiles*57,'Reconstruyendo detalles con Real-ESRGAN · '+done+'/'+totalTiles);
+        // Yield to the browser so the mobile UI remains responsive.
+        await new Promise(resolve=>setTimeout(resolve,0));
+      }
+    }
+    if(scale===2){
+      const half=document.createElement('canvas');half.width=Math.round(targetWidth/2);half.height=Math.round(targetHeight/2);
+      const c=half.getContext('2d');c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(full,0,0,half.width,half.height);
+      return half;
+    }
+    return full;
+  }
+  enhanceImage.addEventListener('click',async()=>{
+    if(!state.file||!state.file.type.startsWith('image/'))return;
+    enhanceImage.disabled=true;downloadImage.disabled=true;manualImage.disabled=true;state.resultBlob=null;
+    $('resultInfo').style.display='none';
+    try{
+      await getRealESRGAN();
+      // Reuse the already-decoded preview image. Some Android Chrome builds
+      // can display an image but fail to decode the same File via createImageBitmap.
+      const original=$('beforeImage');
+      if(!original.complete || !original.naturalWidth) throw new Error('Chrome no pudo decodificar esta imagen. Probá guardarla como JPG o PNG y volver a subirla.');
+      let w=original.naturalWidth,h=original.naturalHeight;
+      const maxPixels=state.imageBackend==='WEBGPU'?MAX_INPUT_PIXELS:180000;
+      const maxSide=state.imageBackend==='WEBGPU'?MAX_INPUT_SIDE:700;
+      const ratio=Math.min(1,maxSide/Math.max(w,h),Math.sqrt(maxPixels/(w*h)));
+      w=Math.max(1,Math.round(w*ratio));h=Math.max(1,Math.round(h*ratio));
+      const input=document.createElement('canvas');input.width=w;input.height=h;
+      const ictx=input.getContext('2d',{willReadFrequently:true});ictx.imageSmoothingEnabled=true;ictx.imageSmoothingQuality='high';ictx.drawImage(original,0,0,w,h);
+      if(ratio<0.999){$('resultInfo').innerHTML='<strong>Nota:</strong> la imagen se adaptó a '+w+' × '+h+' px para que el celular pueda procesarla sin quedarse sin memoria.';$('resultInfo').style.display='block';}
+      const output=await runRealESRGAN(input,state.imageScale);
+      const blob=await new Promise(resolve=>output.toBlob(resolve,'image/png'));
+      if(!blob)throw new Error('El navegador no pudo exportar la imagen mejorada.');
+      state.resultBlob=blob;if(state.resultUrl)URL.revokeObjectURL(state.resultUrl);state.resultUrl=URL.createObjectURL(blob);
+      $('afterImage').src=state.resultUrl;
+      $('afterImage').onload=()=>{
+        const backend=state.imageBackend||'WASM';setProgress(100,'Reconstrucción neuronal terminada');downloadImage.disabled=false;enhanceImage.disabled=false;manualImage.disabled=false;
+        $('resultInfo').innerHTML='<strong>Imagen mejorada con IA.</strong> '+output.width+' × '+output.height+' px · '+state.imageScale+'× · Motor: '+backend+'.';$('resultInfo').style.display='block';
+        $('previewNote').textContent='Resultado de Real-ESRGAN listo. Deslizá la línea para comparar.';toast('¡Reconstrucción IA terminada!');
+      };
+    }catch(err){
+      console.error('NEXO Real-ESRGAN:',err);hideProgress();enhanceImage.disabled=false;manualImage.disabled=false;
+      $('resultInfo').innerHTML='<strong>No se pudo iniciar la IA.</strong><br>'+String(err&&err.message?err.message:'Error inesperado.')+'<br><span style="opacity:.8">Si abriste el HTML como archivo local y el navegador bloquea alguna descarga, probá abrirlo desde HTTPS. Usá una imagen más liviana si el celular se queda sin memoria.</span>';
+      $('resultInfo').style.display='block';toast('No se pudo procesar con IA.');
+    }
+  });
+
+  // Fallback local: upscale + resampling + a restrained unsharp mask. It is not AI reconstruction.
+  manualImage.addEventListener('click',async()=>{
+    if(!state.file)return;manualImage.disabled=true;enhanceImage.disabled=true;setProgress(2,'Aplicando mejora rápida...');
+    try{
+      // Use the preview's decoded HTMLImageElement for Android compatibility.
+      const image=$('beforeImage');if(!image.complete || !image.naturalWidth)throw new Error('No se pudo decodificar la imagen. Probá con JPG o PNG.');let scale=2;
+      const maxSide=3200;if(Math.max(image.naturalWidth,image.naturalHeight)*scale>maxSide)scale=maxSide/Math.max(image.naturalWidth,image.naturalHeight);
+      const w=Math.max(1,Math.round(image.naturalWidth*scale)),h=Math.max(1,Math.round(image.naturalHeight*scale));
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.filter='contrast(1.06) saturate(1.04)';ctx.drawImage(image,0,0,w,h);ctx.filter='none';
+      setProgress(55,'Mejorando bordes...');
+      // Small, bounded unsharp pass; skip for very large canvases to protect mobile memory.
+      if(w*h<=2200000){const src=ctx.getImageData(0,0,w,h),d=src.data,out=new Uint8ClampedArray(d.length);out.set(d);
+        for(let y=1;y<h-1;y++){for(let x=1;x<w-1;x++){const i=(y*w+x)*4;for(let c=0;c<3;c++){const avg=(d[i-4+c]+d[i+4+c]+d[i-w*4+c]+d[i+w*4+c])/4;out[i+c]=Math.max(0,Math.min(255,d[i+c]+(d[i+c]-avg)*.38))}}}
+        src.data.set(out);ctx.putImageData(src,0,0);
+      }
+      const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+      if(!blob)throw new Error('No se pudo exportar la imagen.');
+      state.resultBlob=blob;if(state.resultUrl)URL.revokeObjectURL(state.resultUrl);state.resultUrl=URL.createObjectURL(blob);$('afterImage').src=state.resultUrl;
+      $('afterImage').onload=()=>{downloadImage.disabled=false;enhanceImage.disabled=false;manualImage.disabled=false;setProgress(100,'Mejora rápida terminada');$('resultInfo').innerHTML='<strong>Listo.</strong> '+w+' × '+h+' px · mejora rápida local (sin IA).';$('resultInfo').style.display='block';toast('Mejora rápida lista.');};
+    }catch(err){console.error(err);hideProgress();manualImage.disabled=false;enhanceImage.disabled=false;toast(err.message||'No se pudo mejorar la imagen.');}
+  });
+  downloadImage.addEventListener('click',()=>{if(!state.resultUrl)return;downloadUrl(state.resultUrl,'nexo-mejorada.png')});
+  function downloadUrl(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+
+  const vertexSource=`attribute vec2 aPos; attribute vec2 aUV; varying vec2 vUV; void main(){gl_Position=vec4(aPos,0.0,1.0);vUV=aUV;}`;
+  const fragmentSource=`precision mediump float; varying vec2 vUV; uniform sampler2D uTex; uniform vec2 uTexel; uniform float uSharp; uniform float uContrast; uniform float uSat; void main(){vec3 c=texture2D(uTex,vUV).rgb;vec3 n=texture2D(uTex,vUV+vec2(0.0,uTexel.y)).rgb;vec3 s=texture2D(uTex,vUV-vec2(0.0,uTexel.y)).rgb;vec3 e=texture2D(uTex,vUV+vec2(uTexel.x,0.0)).rgb;vec3 w=texture2D(uTex,vUV-vec2(uTexel.x,0.0)).rgb;vec3 ne=texture2D(uTex,vUV+uTexel).rgb;vec3 sw=texture2D(uTex,vUV-uTexel).rgb;vec3 nw=texture2D(uTex,vUV+vec2(-uTexel.x,uTexel.y)).rgb;vec3 se=texture2D(uTex,vUV+vec2(uTexel.x,-uTexel.y)).rgb;vec3 blur=(c*4.0+(n+s+e+w)*2.0+(ne+nw+se+sw))*0.0625;vec3 col=c+(c-blur)*uSharp;col=(col-0.5)*uContrast+0.5;float grey=dot(col,vec3(0.299,0.587,0.114));col=mix(vec3(grey),col,uSat);gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);}`;
+  function shader(gl,type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s)||'Error de shader');return s}
+  function initGL(){
+    try{
+      const gl=videoCanvas.getContext('webgl',{preserveDrawingBuffer:true,alpha:false,antialias:false})||videoCanvas.getContext('experimental-webgl');if(!gl){state.gl=null;return}
+      const p=gl.createProgram();gl.attachShader(p,shader(gl,gl.VERTEX_SHADER,vertexSource));gl.attachShader(p,shader(gl,gl.FRAGMENT_SHADER,fragmentSource));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+      const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,0,0,1,-1,1,0,-1,1,0,1,1,1,1,1]),gl.STATIC_DRAW);
+      gl.useProgram(p);const pos=gl.getAttribLocation(p,'aPos'),uv=gl.getAttribLocation(p,'aUV');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,16,0);gl.enableVertexAttribArray(uv);gl.vertexAttribPointer(uv,2,gl.FLOAT,false,16,8);
+      const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      state.gl=gl;state.glProgram=p;state.glTexture=tex;state.glBuffer=buf;
+    }catch(err){console.warn('WebGL no disponible:',err);state.gl=null}
+  }
+  function resizeVideoCanvas(){
+    if(!video.videoWidth)return;let scale=state.videoScale;let w=Math.round(video.videoWidth*scale),h=Math.round(video.videoHeight*scale);const maxPixels=6000000;
+    if(w*h>maxPixels){const ratio=Math.sqrt(maxPixels/(w*h));w=Math.floor(w*ratio);h=Math.floor(h*ratio)}
+    videoCanvas.width=w;videoCanvas.height=h;
+    if(state.gl){state.gl.viewport(0,0,w,h)}
+  }
+  function renderVideoFrame(){
+    if(video.readyState<2||!video.videoWidth)return;
+    const gl=state.gl;
+    if(gl&&state.glProgram){
+      try{
+        gl.useProgram(state.glProgram);gl.bindTexture(gl.TEXTURE_2D,state.glTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,video);
+        const texel=gl.getUniformLocation(state.glProgram,'uTexel');gl.uniform2f(texel,1/video.videoWidth,1/video.videoHeight);
+        gl.uniform1f(gl.getUniformLocation(state.glProgram,'uSharp'),+$('vidSharp').value/100*2.0);
+        gl.uniform1f(gl.getUniformLocation(state.glProgram,'uContrast'),+$('vidContrast').value/100);
+        gl.uniform1f(gl.getUniformLocation(state.glProgram,'uSat'),+$('vidSaturation').value/100);
+        gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+      }catch(err){console.warn(err)}
+    }else{
+      const ctx=videoCanvas.getContext('2d');if(ctx){ctx.filter=`contrast(${$('vidContrast').value}%) saturate(${$('vidSaturation').value}%)`;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(video,0,0,videoCanvas.width,videoCanvas.height);ctx.filter='none'}
+    }
+  }
+  function videoLoop(){if(video.paused||video.ended)return;renderVideoFrame();$('videoSeek').value=video.currentTime;$('videoTime').textContent=fmtTime(video.currentTime)+' / '+fmtTime(video.duration);if(state.isExporting)setProgress(video.currentTime/video.duration*100,'Procesando video en tiempo real...');state.animationFrame=requestAnimationFrame(videoLoop)}
+  $('playVideo').addEventListener('click',async()=>{if(video.paused){try{await video.play();$('playVideo').textContent='Ⅱ'}catch(e){toast('No se pudo reproducir el video.')}}else{video.pause();$('playVideo').textContent='▶'}});
+  video.addEventListener('play',()=>{$('playVideo').textContent='Ⅱ';cancelAnimationFrame(state.animationFrame);videoLoop()});
+  video.addEventListener('pause',()=>{$('playVideo').textContent='▶';renderVideoFrame()});
+  video.addEventListener('seeked',renderVideoFrame);
+  video.addEventListener('timeupdate',()=>{if(!state.isExporting){$('videoSeek').value=video.currentTime;$('videoTime').textContent=fmtTime(video.currentTime)+' / '+fmtTime(video.duration)}});
+  $('videoSeek').addEventListener('input',()=>{if(Number.isFinite(video.duration))video.currentTime=+$('videoSeek').value});
+  async function captureAudioTracks(){
+    try{const capture=video.captureStream?video.captureStream():(video.mozCaptureStream?video.mozCaptureStream():null);if(capture){state.sourceStream=capture;return capture.getAudioTracks()}}catch(e){console.warn('No se pudo capturar audio:',e)}
+    return [];
+  }
+  function getRecorderMime(){const options=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'];for(const m of options){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m}return ''}
+  exportVideo.addEventListener('click',async()=>{
+    if(!state.file||!video.duration||state.isExporting)return;
+    if(!window.MediaRecorder||!videoCanvas.captureStream){toast('Tu navegador no permite exportar video desde esta página. Probá Chrome actualizado.');return}
+    const mime=getRecorderMime();if(!mime){toast('El navegador no admite un formato de exportación compatible.');return}
+    state.isExporting=true;state.videoChunks=[];exportVideo.disabled=true;downloadVideo.disabled=true;setProgress(0,'Preparando exportación...');
+    try{
+      resizeVideoCanvas();
+      const canvasStream=videoCanvas.captureStream(30);const audioTracks=await captureAudioTracks();audioTracks.forEach(t=>canvasStream.addTrack(t));
+      const recorder=new MediaRecorder(canvasStream,{mimeType:mime,videoBitsPerSecond:Math.min(16000000,Math.max(2500000,videoCanvas.width*videoCanvas.height*3))});state.videoRecorder=recorder;
+      recorder.ondataavailable=e=>{if(e.data&&e.data.size)state.videoChunks.push(e.data)};
+      recorder.onerror=e=>{console.error(e);state.isExporting=false;exportVideo.disabled=false;hideProgress();toast('Hubo un error al grabar el video.')};
+      recorder.onstop=()=>{
+        state.isExporting=false;canvasStream.getTracks().forEach(t=>t.stop());if(state.sourceStream)state.sourceStream.getTracks().forEach(t=>t.stop());
+        state.videoMime=mime;const blob=new Blob(state.videoChunks,{type:mime});if(!blob.size){exportVideo.disabled=false;hideProgress();toast('No se pudo generar el archivo.');return}
+        if(state.videoUrl)URL.revokeObjectURL(state.videoUrl);state.videoUrl=URL.createObjectURL(blob);downloadVideo.disabled=false;exportVideo.disabled=false;
+        const ext=mime.includes('mp4')?'mp4':'webm';$('resultInfo').innerHTML='<strong>Video listo.</strong> '+videoCanvas.width+' × '+videoCanvas.height+' px · '+ext.toUpperCase()+' · '+fmtBytes(blob.size)+'.';$('resultInfo').style.display='block';setProgress(100,'Exportación terminada');toast('Video mejorado y exportado.');
+      };
+      video.pause();video.currentTime=0;await new Promise(resolve=>{if(video.readyState>=2)resolve();else video.onloadeddata=resolve});renderVideoFrame();
+      recorder.start(1000);await video.play();$('playVideo').textContent='Ⅱ';
+      video.onended=()=>{if(recorder.state==='recording')recorder.stop();$('playVideo').textContent='▶'};
+    }catch(err){console.error(err);state.isExporting=false;exportVideo.disabled=false;hideProgress();toast(err.message||'No se pudo exportar el video.');}
+  });
+  downloadVideo.addEventListener('click',()=>{if(!state.videoUrl)return;const ext=state.videoMime.includes('mp4')?'mp4':'webm';downloadUrl(state.videoUrl,'nexo-video-mejorado.'+ext)});
+
+  // Restore a fresh workspace if the user changes media type.
+  const originalSetMode=setMode;
+  window.addEventListener('beforeunload',()=>{if(state.originalUrl)URL.revokeObjectURL(state.originalUrl);if(state.resultUrl)URL.revokeObjectURL(state.resultUrl);if(state.videoUrl)URL.revokeObjectURL(state.videoUrl)});
+})();
+</script>
+</body>
+</html>
